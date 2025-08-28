@@ -4,9 +4,13 @@ from serpapi import GoogleSearch
 import streamlit as st
 import time
 from datetime import datetime
+from dotenv import load_dotenv
 
-# API Key สำหรับ SerpApi
-API_KEY = "42ed65c54ab568d1396bbb8f10f5c80376f5e05e801f1ed41697bca017d214f0"
+# โหลดค่าจากไฟล์ .env
+load_dotenv()
+
+# API Key สำหรับ SerpApi (ควรเก็บใน .env file)
+API_KEY = os.getenv('SERPAPI_KEY', '42ed65c54ab568d1396bbb8f10f5c80376f5e05e801f1ed41697bca017d214f0')
 
 class BusinessSearcher:
     def __init__(self, api_key):
@@ -121,13 +125,16 @@ class BusinessSearcher:
         return filename
 
 def main():
+    # โหลดค่า configuration จาก .env
+    app_title = os.getenv('APP_TITLE', 'ระบบค้นหาธุรกิจใน Google Maps')
+    
     st.set_page_config(
-        page_title="ระบบค้นหาธุรกิจใน Google Maps",
+        page_title=app_title,
         page_icon="🗺️",
         layout="wide"
     )
     
-    st.title("🗺️ ระบบค้นหาธุรกิจใน Google Maps")
+    st.title(f"🗺️ {app_title}")
     st.markdown("---")
     
     # สร้าง BusinessSearcher instance
@@ -229,6 +236,11 @@ def main():
     # Sidebar สำหรับการตั้งค่า
     with st.sidebar:
         st.header("⚙️ การตั้งค่าการค้นหา")
+        
+        # โหลดค่า default จาก .env
+        default_business_type = os.getenv('DEFAULT_BUSINESS_TYPE', 'ทั้งหมด')
+        default_province = os.getenv('DEFAULT_PROVINCE', 'ทั้งหมด')
+        default_district = os.getenv('DEFAULT_DISTRICT', 'ทั้งหมด')
         
         # ฟอร์มการค้นหา
         with st.form("search_form"):
