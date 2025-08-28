@@ -52,12 +52,35 @@ class BusinessSearcher:
                     if business_data:
                         businesses.append(business_data)
             
-            # หากมีหน้าถัดไป ให้ค้นหาต่อ
-            if "serpapi_pagination" in results and "next" in results["serpapi_pagination"]:
-                next_params = results["serpapi_pagination"]["next"]
-                if len(businesses) < num_results:
-                    time.sleep(1)  # หน่วงเวลาเพื่อไม่ให้เกิน rate limit
-                    # ค้นหาหน้าถัดไป (สามารถขยายได้)
+            # หากมีหน้าถัดไป ให้ค้นหาต่อจนครบจำนวนที่ต้องการ
+            page_count = 1
+            max_pages = 3  # จำกัดจำนวนหน้าเพื่อป้องกัน infinite loop
+            
+            while ("serpapi_pagination" in results and "next" in results["serpapi_pagination"] 
+                   and len(businesses) < num_results and page_count < max_pages):
+                
+                time.sleep(1)  # หน่วงเวลาเพื่อไม่ให้เกิน rate limit
+                
+                # ดึง parameters สำหรับหน้าถัดไป
+                if "next" in results["serpapi_pagination"]:
+                    # สร้าง parameters ใหม่สำหรับหน้าถัดไป
+                    next_params = params.copy()
+                    if "start" in results["serpapi_pagination"]:
+                        next_params["start"] = results["serpapi_pagination"]["start"]
+                    next_search = GoogleSearch(next_params)
+                    results = next_search.get_dict()
+                else:
+                    break
+                
+                if "local_results" in results:
+                    for result in results["local_results"]:
+                        if len(businesses) >= num_results:
+                            break
+                        business_data = self.extract_business_info(result)
+                        if business_data:
+                            businesses.append(business_data)
+                
+                page_count += 1
             
         except Exception as e:
             st.error(f"เกิดข้อผิดพลาดในการค้นหา: {str(e)}")
