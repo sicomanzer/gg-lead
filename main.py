@@ -131,14 +131,230 @@ def main():
     st.set_page_config(
         page_title=app_title,
         page_icon="🗺️",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
     
-    st.title(f"🗺️ {app_title}")
-    st.markdown("---")
+    # Custom CSS สำหรับ Modern Dashboard
+    st.markdown("""
+    <style>
+    /* Import Google Font Noto Sans Thai */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+    
+    /* Apply font to all elements */
+    * {
+        font-family: 'Noto Sans Thai', sans-serif !important;
+    }
+    
+    /* Main dashboard styling */
+    .main-header {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        font-family: 'Noto Sans Thai', sans-serif;
+    }
+    
+    .metric-card {
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+        color: white;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .metric-card.blue {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+    
+    .metric-card.green {
+        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    }
+    
+    .metric-card.orange {
+        background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+    }
+    
+    .metric-card.red {
+        background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+    }
+    
+    .metric-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        font-family: 'Noto Sans Thai', sans-serif;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .metric-label {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 500;
+        font-family: 'Noto Sans Thai', sans-serif;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    .search-form {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .results-table {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #f8f9fa;
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Fix expander text overlap */
+    .streamlit-expanderHeader {
+        font-family: 'Noto Sans Thai', sans-serif !important;
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+    }
+    
+    .streamlit-expanderContent {
+        font-family: 'Noto Sans Thai', sans-serif !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Fix span element spacing */
+    span {
+        line-height: 1.5 !important;
+    }
+    
+    /* Fix markdown in expander */
+    .streamlit-expanderContent .stMarkdown {
+        line-height: 1.6 !important;
+    }
+    
+    /* Hide selectbox dropdown arrows */
+     [data-testid="stSelectbox"] svg {
+         display: none !important;
+     }
+     
+     /* Hide Material Icons */
+     span[data-testid="stIconMaterial"] {
+         display: none !important;
+     }
+    </style>
+    
+    <script>
+    // Remove keyboard_arrow_down text from DOM
+    function removeKeyboardArrowText() {
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        const textNodes = [];
+        let node;
+        
+        while (node = walker.nextNode()) {
+            if (node.textContent.includes('keyboard_arrow_down')) {
+                textNodes.push(node);
+            }
+        }
+        
+        textNodes.forEach(textNode => {
+            textNode.textContent = textNode.textContent.replace(/keyboard_arrow_down/g, '');
+        });
+    }
+    
+    // Run on page load and periodically
+    document.addEventListener('DOMContentLoaded', removeKeyboardArrowText);
+    setInterval(removeKeyboardArrowText, 1000);
+    </script>
+    """, unsafe_allow_html=True)
+    
+    # Header Dashboard
+    st.markdown(f"""
+    <div class="main-header">
+        <h1>🗺️ {app_title}</h1>
+        <p>ค้นหาและรวบรวมข้อมูลธุรกิจจาก Google Maps อย่างมีประสิทธิภาพ</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # สร้าง BusinessSearcher instance
     searcher = BusinessSearcher(API_KEY)
+    
+    # Metric Cards Dashboard
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown("""
+        <div class="metric-card blue">
+            <p class="metric-number">77</p>
+            <p class="metric-label">จังหวัดทั้งหมด</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="metric-card green">
+            <p class="metric-number">50+</p>
+            <p class="metric-label">ประเภทธุรกิจ</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="metric-card orange">
+            <p class="metric-number" id="search-count">0</p>
+            <p class="metric-label">ผลลัพธ์ล่าสุด</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div class="metric-card red">
+            <p class="metric-number">API</p>
+            <p class="metric-label">สถานะเชื่อมต่อ</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     # ข้อมูลจังหวัดและอำเภอ
     provinces_districts = {
@@ -235,7 +451,11 @@ def main():
     
     # Sidebar สำหรับการตั้งค่า
     with st.sidebar:
-        st.header("⚙️ การตั้งค่าการค้นหา")
+        st.markdown("""
+        <div style="text-align: center; padding: 1rem; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 10px; margin-bottom: 1rem;">
+            <h2 style="color: white; margin: 0;">⚙️ การตั้งค่าการค้นหา</h2>
+        </div>
+        """, unsafe_allow_html=True)
         
         # โหลดค่า default จาก .env
         default_business_type = os.getenv('DEFAULT_BUSINESS_TYPE', 'ทั้งหมด')
@@ -245,25 +465,33 @@ def main():
         # ฟอร์มการค้นหา
         with st.form("search_form"):
             # แถวแรก: ประเภทธุรกิจ
+            st.markdown("**🏢 ประเภทธุรกิจ**")
             query = st.selectbox(
-                "ประเภทธุรกิจที่ต้องการค้นหา",
+                "เลือกประเภทธุรกิจที่ต้องการค้นหา",
                 options=business_types,
-                index=0
+                index=0,
+                label_visibility="collapsed"
             )
             
+            st.markdown("---")
+            
             # แถวที่สอง: จังหวัด
+            st.markdown("**🗺️ จังหวัด**")
             selected_province = st.selectbox(
-                "จังหวัดที่ต้องการค้นหา",
+                "เลือกจังหวัดที่ต้องการค้นหา",
                 options=provinces,
-                index=0
+                index=0,
+                label_visibility="collapsed"
             )
             
             # แถวที่สาม: อำเภอ (อยู่ใต้จังหวัด)
+            st.markdown("**📍 อำเภอ**")
             districts = provinces_districts.get(selected_province, [])
             selected_district = st.selectbox(
-                "อำเภอที่ต้องการค้นหา",
+                "เลือกอำเภอที่ต้องการค้นหา",
                 options=["ทุกอำเภอ"] + districts,
-                index=0
+                index=0,
+                label_visibility="collapsed"
             )
             
             # สร้าง location string สำหรับการค้นหา
@@ -272,18 +500,24 @@ def main():
             else:
                 location = f"{selected_district}, {selected_province}"
             
+            st.markdown("---")
+            
             # แถวที่สี่: จำนวนผลลัพธ์
+            st.markdown("**📊 จำนวนผลลัพธ์**")
             num_results = st.slider(
-                "จำนวนผลลัพธ์",
+                "เลือกจำนวนผลลัพธ์ที่ต้องการ",
                 min_value=5,
                 max_value=50,
                 value=20,
-                step=5
+                step=5,
+                label_visibility="collapsed"
             )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
             
             # ปุ่มค้นหา
             search_button = st.form_submit_button(
-                "🔍 เริ่มค้นหา",
+                "🔍 เริ่มค้นหาธุรกิจ",
                 use_container_width=True
             )
     
@@ -293,7 +527,18 @@ def main():
             businesses = searcher.search_businesses(query, location, num_results)
         
         if businesses:
-            st.success(f"พบธุรกิจทั้งหมด {len(businesses)} รายการ")
+            # อัพเดท metric card สำหรับจำนวนผลลัพธ์
+            st.markdown(f"""
+            <script>
+                document.getElementById('search-count').innerText = '{len(businesses)}';
+            </script>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"""
+            <div class="success-message" style="background: linear-gradient(90deg, #28a745 0%, #20c997 100%); color: white; padding: 1rem; border-radius: 10px; margin: 1rem 0; text-align: center;">
+                ✅ พบธุรกิจ <strong>{len(businesses)}</strong> แห่ง ในพื้นที่ <strong>{location}</strong>
+            </div>
+            """, unsafe_allow_html=True)
             
             # แสดงผลลัพธ์
             col1, col2 = st.columns([3, 1])
@@ -301,12 +546,35 @@ def main():
             with col1:
                 st.subheader("📋 ผลลัพธ์การค้นหา")
                 
-                # แสดงข้อมูลในรูปแบบตาราง
+                # แสดงข้อมูลในรูปแบบตาราง modern
                 df = pd.DataFrame(businesses)
                 st.dataframe(
                     df,
                     use_container_width=True,
-                    hide_index=True
+                    hide_index=True,
+                    column_config={
+                        "ชื่อธุรกิจ": st.column_config.TextColumn(
+                            "🏢 ชื่อธุรกิจ",
+                            width="large"
+                        ),
+                        "ที่อยู่": st.column_config.TextColumn(
+                            "📍 ที่อยู่",
+                            width="large"
+                        ),
+                        "เบอร์โทรศัพท์": st.column_config.TextColumn(
+                            "📞 เบอร์โทร",
+                            width="medium"
+                        ),
+                        "คะแนนรีวิว": st.column_config.NumberColumn(
+                            "⭐ เรตติ้ง",
+                            width="small",
+                            format="%.1f"
+                        ),
+                        "จำนวนรีวิว": st.column_config.NumberColumn(
+                            "💬 รีวิว",
+                            width="small"
+                        )
+                    }
                 )
             
             with col2:
@@ -360,25 +628,7 @@ def main():
     elif search_button and not query:
         st.error("กรุณาระบุประเภทธุรกิจที่ต้องการค้นหา")
     
-    # ข้อมูลเพิ่มเติม
-    with st.expander("ℹ️ วิธีการใช้งาน"):
-        st.markdown("""
-        ### วิธีการใช้งาน:
-        1. **ระบุประเภทธุรกิจ**: เช่น "ร้านอาหาร", "โรงแรม", "ร้านกาแฟ", "คลินิก"
-        2. **เลือกสถานที่**: ระบุจังหวัดหรือพื้นที่ที่ต้องการค้นหา
-        3. **กำหนดจำนวนผลลัพธ์**: เลือกจำนวนธุรกิจที่ต้องการ
-        4. **คลิกเริ่มค้นหา**: รอผลลัพธ์และดาวน์โหลดข้อมูล
-        
-        ### ข้อมูลที่ได้:
-        - ชื่อธุรกิจ
-        - ที่อยู่
-        - เบอร์โทรศัพท์
-        - อีเมล (หากมี)
-        - ประเภทธุรกิจ
-        - คะแนนและจำนวนรีวิว
-        - สถานะเปิด-ปิด
-        - พิกัด GPS
-        """)
+
 
 if __name__ == "__main__":
     main()
